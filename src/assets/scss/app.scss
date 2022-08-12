@@ -1,0 +1,49 @@
+body {
+    @apply bg-gray-300;
+}
+
+a {
+    @apply text-blue-700;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    @apply tracking-wide;
+}
+
+.app-content {
+    @apply rounded-lg bg-gray-100 mt-3 shadow-sm border border-gray-300;
+
+    .info {
+        @apply p-2 text-center text-sm font-medium bg-primary-300 tracking-wider text-primary-800 rounded-t-lg border-b-2 border-gray-200;
+    }
+}
+
+input[type="text"],
+input[type="number"] {
+    @apply border-2 border-gray-200 rounded-md p-2 focus:outline-primary-600;
+}
+
+select {
+    @apply border-2 border-gray-200 rounded-md px-2 py-2.5 focus:outline-primary-600;
+}
+
+#debug {
+    pre {
+        white-space: pre-wrap; /* Since CSS 2.1 */
+        white-space: -moz-pre-wrap; /* Mozilla, since 1999 */
+        white-space: -pre-wrap; /* Opera 4-6 */
+        white-space: -o-pre-wrap; /* Opera 7 */
+        word-wrap: break-word;
+    }
+
+    #debug-header {
+        @apply mb-2 text-center text-primary-600 text-sm;
+    }
+
+    @apply my-3 bg-gray-100  p-2 text-xs rounded-lg leading-4;
+}
