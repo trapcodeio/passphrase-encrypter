@@ -11,18 +11,16 @@ import html2canvas from "html2canvas";
 import LoadingButton from "../../node_modules/revue-components/vues/LoadingButton.vue";
 import { useClipboard } from "@vueuse/core";
 
-const { text, copy, copied, isSupported } = useClipboard();
+const { copy, copied } = useClipboard();
 
 const langFiles = {
   nodeJs: import.meta.env.VITE_JS_DECRYPT_FILE
 };
 
-console.log(langFiles);
-
 /**
  * The password
  */
-const passPhrase = ref("1234567");
+const passPhrase = ref(ifDev("1234567", "")!);
 
 /**
  * The name of this encryption method.

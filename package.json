@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "scripts": {
     "dev": "npm run bundle && vite --host --port 1666",
-    "build": "vue-tsc --noEmit && vite build",
+    "build": "npm run bundle && vue-tsc --noEmit && vite build",
     "serve": "vite preview",
     "bundle": "node ./scripts/bundle.js"
   },
@@ -21,6 +21,7 @@
   "devDependencies": {
     "@types/crypto-js": "^4.1.1",
     "@types/node": "^18.7.1",
+    "@types/qrcode": "^1.4.2",
     "@types/tailwindcss": "^3.1.0",
     "@vitejs/plugin-vue": "^3.0.1",
     "@vue/compiler-sfc": "^3.2.37",
