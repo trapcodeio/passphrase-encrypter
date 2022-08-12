@@ -34,6 +34,7 @@ select {
 
 #debug {
     pre {
+        @apply leading-4;
         white-space: pre-wrap; /* Since CSS 2.1 */
         white-space: -moz-pre-wrap; /* Mozilla, since 1999 */
         white-space: -pre-wrap; /* Opera 4-6 */
@@ -45,5 +46,5 @@ select {
         @apply mb-2 text-center text-primary-600 text-sm;
     }
 
-    @apply my-3 bg-gray-100  p-2 text-xs rounded-lg leading-4;
+    @apply my-2 bg-gray-100  p-2 text-xs rounded-lg leading-4;
 }

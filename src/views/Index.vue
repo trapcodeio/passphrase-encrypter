@@ -3,23 +3,9 @@ import { computed, reactive, ref } from "vue";
 import type { ILoadingButton } from "revue-components/vues/component-types";
 import { ordinalSuffixOf } from "../functions/string";
 import { aesEncrypt } from "../functions/crypto";
-
-const settings = reactive({
-  /**
-   * Number of words in the pass phrase.
-   */
-  numberOfWords: 3,
-
-  /**
-   * Set verification mode.
-   */
-  verifyWords: "retype" as false | "retype" | "confirm",
-
-  /**
-   * Encryption type.
-   */
-  encryptionMethod: "complex" as "simple" | "complex"
-});
+import { settings } from "../stores/settings.store";
+import { isDev } from "../functions/env";
+import Settings from "../components/Settings.vue";
 
 /**
  * The password
@@ -29,7 +15,7 @@ const passPhrase = ref("1234567");
 /**
  * The name of this encryption method.
  */
-const passName = ref("");
+const passName = ref("ledger");
 
 /**
  * Input model for all inputs
@@ -106,23 +92,6 @@ function onInputValuesChange(e: KeyboardEvent, i: number) {
   // validate all inputs
   if (timeout) clearTimeout(timeout);
   timeout = setTimeout(() => validateWords(true), 400);
-}
-
-// On Number of words settings change, update settings
-function onNumberOfWordsSettingsKeyUp(e: KeyboardEvent) {
-  if (!e) return;
-
-  let v = Number((e.target as any).value);
-
-  // set min to 1
-  if (!v || v < 1) v = 1;
-  // set max to 50
-  else if (v > 50) v = 50;
-
-  // change value if v is different
-  if (v !== settings.numberOfWords) {
-    settings.numberOfWords = v;
-  }
 }
 
 /**
@@ -223,7 +192,7 @@ function encryptWords(btn: ILoadingButton) {
   } else {
     /**
      * Complex Encryption Steps
-     *  1. Encrypt each character in the pass phrase.
+     *  1. Encrypt each character in the pass phrase using the passphrase + substring value of the current index position.
      *  2. Join the encrypted characters.
      *  3. Encrypt the json string using the joined characters as the key.
      */
@@ -231,13 +200,12 @@ function encryptWords(btn: ILoadingButton) {
     // Encrypt each character in the pass phrase & join the encrypted characters
     const encryptedPassPhrase = passPhrase.value
       .split("")
-      .map((c) => {
-        return aesEncrypt(c, passPhrase.value);
+      .map((c, i) => {
+        return aesEncrypt(c, passPhrase.value + passPhrase.value.substring(0, i));
       })
       .join("");
 
     // Encrypt the json string using the joined characters as the key
-
     encryptedValue.value = {
       name: e.name,
       date: e.date,
@@ -262,49 +230,7 @@ function encryptWords(btn: ILoadingButton) {
         Use this tool only if you understand: <a href="#">How It Works!</a>
       </div>
 
-      <div class="p-3 mt-5 mb-3">
-        <h5 class="text-lg text-center uppercase text-gray-700 font-bold">Settings</h5>
-
-        <div class="settings">
-          <div>
-            <label>Number of words:</label>
-            <input
-              @keyup="onNumberOfWordsSettingsKeyUp"
-              :value="settings.numberOfWords"
-              type="number"
-              min="1"
-              max="50"
-              class="w-32"
-              placeholder="Number of words"
-            />
-          </div>
-
-          <div>
-            <label>Verification:</label>
-            <select
-              v-model="settings.verifyWords"
-              class="w-32"
-              placeholder="Verify words"
-            >
-              <option :value="false">None</option>
-              <option value="confirm">Confirm (Medium)</option>
-              <option value="retype">Retype (Recommended)</option>
-            </select>
-          </div>
-
-          <div>
-            <label>Encryption Method:</label>
-            <select
-              v-model="settings.encryptionMethod"
-              class="w-32"
-              placeholder="Encryption Method"
-            >
-              <option value="simple">Simple</option>
-              <option value="complex">Complex</option>
-            </select>
-          </div>
-        </div>
-      </div>
+      <Settings />
 
       <div class="mt-8 p-3">
         <h3 class="text-xl text-primary-700 text-center uppercase">
@@ -370,37 +296,119 @@ function encryptWords(btn: ILoadingButton) {
           <div>
             <LoadingButton
               :click="encryptWords"
-              class="bg-primary-700 mt-4 text-white px-5 py-1.5 text-xl tracking-wide font-medium rounded-sm shadow-sm"
+              class="bg-primary-700 mt-4 text-white px-5 py-1.5 text-lg tracking-wide font-medium rounded-sm shadow-sm capitalize flex space-x-1"
               message="Encrypting"
-              >Encrypt</LoadingButton
             >
+              <span> {{ settings.encryptionMethod }} Encrypt</span>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-6 w-6"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+                />
+              </svg>
+            </LoadingButton>
           </div>
         </div>
       </div>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-      <div class="col-span-1">
-        <Debug header="Raw Data" :data="encryptedData()"></Debug>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mt-5">
+      <div class="col-span-1 bg-gray-800 rounded-lg">
+        <div class="flex justify-between mt-3 mb-2 text-sm text-gray-300 px-3">
+          <h5>
+            Name: <b class="text-primary-500">{{ passName || "UN_NAMED" }}</b>
+          </h5>
+          <small class="text-xs font-mono">
+            {{
+              encryptedValue
+                ? encryptedValue.date.toDateString() +
+                  " " +
+                  encryptedValue.date.toLocaleTimeString()
+                : ""
+            }}
+          </small>
+        </div>
+        <hr class="border-gray-700" />
       </div>
       <div class="col-span-1">
+        <div v-if="encryptedValue" class="buttons-menu">
+          <button class="bg-gray-700 hover:bg-gray-800 text-white">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-4 w-4 mt-0.5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2"
+              />
+            </svg>
+            <span>Copy</span>
+          </button>
+          <button class="bg-teal-700 hover:bg-teal-800 text-white">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-4 w-4 mt-0.5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+              />
+            </svg>
+
+            <span>Text File</span>
+          </button>
+          <button class="bg-blue-700 hover:bg-blue-800 text-white">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-4 w-4 mt-0.5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+              />
+            </svg>
+            <span>Image File</span>
+          </button>
+        </div>
         <Debug header="Encrypted Data" :data="encryptedValue"></Debug>
       </div>
+    </div>
+
+    <div class="mt-5" v-if="isDev">
+      <Debug header="Raw Data" :data="encryptedData()" />
     </div>
   </div>
 </template>
 
 <style lang="scss">
-.settings {
-  @apply flex gap-x-3 border-b pb-5;
+.buttons-menu {
+  @apply flex flex-row gap-2 justify-end;
 
-  label {
-    @apply text-xs block  px-1 text-gray-600 font-medium;
-  }
-
-  input,
-  select {
-    @apply text-primary-900 border text-sm;
+  button {
+    @apply text-sm rounded-sm px-2 py-0.5 flex space-x-0.5;
   }
 }
 </style>
