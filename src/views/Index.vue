@@ -1,11 +1,23 @@
 <script setup lang="ts">
-import { computed, reactive, ref } from "vue";
+import { computed, reactive, ref, watch } from "vue";
 import type { ILoadingButton } from "revue-components/vues/component-types";
 import { ordinalSuffixOf } from "../functions/string";
-import { aesEncrypt } from "../functions/crypto";
+import { aesEncrypt, md5 } from "../functions/crypto";
 import { settings } from "../stores/settings.store";
-import { isDev } from "../functions/env";
+import { ifDev, isDev } from "../functions/env";
 import Settings from "../components/Settings.vue";
+import { useQRCode } from "@vueuse/integrations/useQrCode";
+import html2canvas from "html2canvas";
+import LoadingButton from "../../node_modules/revue-components/vues/LoadingButton.vue";
+import { useClipboard } from "@vueuse/core";
+
+const { text, copy, copied, isSupported } = useClipboard();
+
+const langFiles = {
+  nodeJs: import.meta.env.VITE_JS_DECRYPT_FILE
+};
+
+console.log(langFiles);
 
 /**
  * The password
@@ -15,22 +27,22 @@ const passPhrase = ref("1234567");
 /**
  * The name of this encryption method.
  */
-const passName = ref("ledger");
+const passName = ref(ifDev("ledger", "")!);
 
 /**
  * Input model for all inputs
  */
-const inputValues = reactive<string[]>(["force", "smith", "brave"]);
+const inputValues = reactive<string[]>(ifDev(["force", "smith", "brave"], [])!);
 
 /**
  * Input model for all retype confirmation inputs
  */
-const retypeValues = reactive<string[]>(["force", "smith", "brave"]);
+const retypeValues = reactive<string[]>([]);
 
 /**
  * Will be set to true to show the verification section
  */
-const isVerifyingWords = ref(true);
+const isVerifyingWords = ref(false);
 
 /**
  * Input error for all input boxes
@@ -42,9 +54,13 @@ const inputErrors = reactive<string[]>([]);
  */
 const encryptedValue = ref<{
   name: string;
-  date: Date;
+  date?: Date;
   value: string;
 }>();
+
+const encryptedValueQrCode = useQRCode(() =>
+  encryptedValue.value ? JSON.stringify(encryptedValue.value) : "QR_CODE_EMPTY"
+);
 
 /**
  * Timeout for realtime inputs validation
@@ -53,6 +69,8 @@ let timeout: NodeJS.Timeout | null = null;
 
 const retypeVerificationIsValid = computed(() => {
   if (isVerifyingWords.value && settings.verifyWords === "retype") {
+    if (inputValues.length !== retypeValues.length) return false;
+
     return inputValues.every((value, index) => {
       return value === retypeValues[index];
     });
@@ -65,9 +83,19 @@ const retypeVerificationIsValid = computed(() => {
  * Computed property to check if all validations is passed before Encrypting
  */
 const canEncrypt = computed(() => {
-  if (inputErrors.length > 0) return false;
+  if (inputErrors.length !== 0) return false;
+  if (inputValues.length !== settings.numberOfWords) return false;
+  if (settings.verifyWords === "retype")
+    return isVerifyingWords.value && retypeVerificationIsValid.value;
 
-  return retypeVerificationIsValid.value;
+  return true;
+});
+
+// Watch settings.showDateInPubicData
+watch(settings, () => {
+  // reset encrypted value if showDateInPubicData is changed
+  if (encryptedValue.value) encryptedValue.value = undefined;
+  validateWordsRealTime();
 });
 
 /**
@@ -90,8 +118,7 @@ function onInputValuesChange(e: KeyboardEvent, i: number) {
   }
 
   // validate all inputs
-  if (timeout) clearTimeout(timeout);
-  timeout = setTimeout(() => validateWords(true), 400);
+  validateWordsRealTime();
 }
 
 /**
@@ -146,6 +173,11 @@ function validateWords(checkRequired = false) {
   return inputErrors.length === 0;
 }
 
+function validateWordsRealTime(time = 400) {
+  if (timeout) clearTimeout(timeout);
+  timeout = setTimeout(() => validateWords(true), time);
+}
+
 /**
  * Toggle isVerifyingWords function
  * validates on each toggle
@@ -162,10 +194,21 @@ function encryptedData() {
   const { encryptionMethod, numberOfWords } = settings;
   return {
     name: passName.value,
-    date: new Date(),
+    date: settings.showDateInPubicData ? new Date() : undefined,
     settings: { encryptionMethod, numberOfWords },
-    words: inputValues
+    // convert inputValues to object to make it easier to read.
+    words: convertInputValuesToObject()
   };
+}
+
+function convertInputValuesToObject() {
+  const obj: Record<string, string> = {};
+
+  for (const index in inputValues) {
+    obj[Number(index) + 1] = inputValues[index];
+  }
+
+  return obj;
 }
 
 /**
@@ -201,9 +244,9 @@ function encryptWords(btn: ILoadingButton) {
     const encryptedPassPhrase = passPhrase.value
       .split("")
       .map((c, i) => {
-        return aesEncrypt(c, passPhrase.value + passPhrase.value.substring(0, i));
+        return md5(passPhrase.value + passPhrase.value.substring(0, i));
       })
-      .join("");
+      .join("|!@#$%^&*(MPPE)|".repeat(passPhrase.value.length));
 
     // Encrypt the json string using the joined characters as the key
     encryptedValue.value = {
@@ -215,14 +258,74 @@ function encryptWords(btn: ILoadingButton) {
 
   btn.stopLoading();
 }
+
+function copyEncryptedValue() {
+  if (encryptedValue.value) {
+    copy(JSON.stringify(encryptedValue.value));
+  }
+}
+const downloading = ref(false);
+function downloadImage(btn: ILoadingButton) {
+  downloading.value = true;
+  setTimeout(() => {
+    html2canvas(document.querySelector("#card")!, {})
+      .then((canvas) => {
+        const a = document.createElement("a");
+        a.href = canvas.toDataURL("image/png");
+        a.target = "_blank";
+        a.download = `${passName.value || new Date().toDateString()}.png`;
+        a.click();
+      })
+      .finally(() => {
+        downloading.value = false;
+        btn.stopLoading();
+      });
+  }, 1000);
+}
+
+function downloadJson(btn: ILoadingButton) {
+  downloading.value = true;
+  setTimeout(() => {
+    const a = document.createElement("a");
+    a.href = `data:text/json;charset=utf-8,${encodeURIComponent(
+      JSON.stringify(encryptedValue.value)
+    )}`;
+    a.target = "_blank";
+    a.download = `${passName.value || new Date().toDateString()}.json`;
+    a.click();
+
+    downloading.value = false;
+    btn.stopLoading();
+  }, 1000);
+}
+
+function downloadNodeJsScript(btn: ILoadingButton) {
+  downloading.value = true;
+  setTimeout(() => {
+    const a = document.createElement("a");
+    a.href = `data:text/plain;charset=utf-8,${encodeURIComponent(
+      langFiles.nodeJs.replace(
+        '"{{encryptedData}}"',
+        JSON.stringify(encryptedValue.value)
+      )
+    )}`;
+    a.target = "_blank";
+    a.download = `${passName.value || new Date().toDateString()}.js`;
+    a.click();
+
+    downloading.value = false;
+    btn.stopLoading();
+  }, 1000);
+}
 </script>
 
 <template>
   <div class="container mx-auto py-10">
-    <h2 class="text-3xl font-bold text-center">
+    <h2 class="text-2xl font-bold text-center">
       <span class="text-gray-700">Mnemonic</span>
       <span class="text-primary-700 mx-2">Pass Phrase</span>
       <span class="text-gray-700">Encrypter</span>
+      <sup class="text-primary-700 font-bold text-sm ml-2">(Open Source)</sup>
     </h2>
 
     <div class="app-content">
@@ -233,14 +336,24 @@ function encryptWords(btn: ILoadingButton) {
       <Settings />
 
       <div class="mt-8 p-3">
-        <h3 class="text-xl text-primary-700 text-center uppercase">
-          {{
-            isVerifyingWords
-              ? `Verify (${settings.numberOfWords})`
-              : settings.numberOfWords
-          }}
-          {{ settings.numberOfWords > 1 ? "words" : "word" }} pass phrase
-        </h3>
+        <div class="text-center space-x-2">
+          <h3 class="text-xl text-primary-700 text-center uppercase inline-block">
+            {{
+              isVerifyingWords
+                ? `Verify (${settings.numberOfWords})`
+                : settings.numberOfWords
+            }}
+            {{ settings.numberOfWords > 1 ? "words" : "word" }} pass phrase
+          </h3>
+
+          <button
+            v-if="isVerifyingWords"
+            @click="toggleVerifyingWords"
+            class="text-sm inline-block"
+          >
+            (cancel)
+          </button>
+        </div>
 
         <div class="flex gap-2 flex-wrap mt-5 justify-center mb-10">
           <div v-for="(v, i) of '*'.repeat(settings.numberOfWords).split('')">
@@ -269,9 +382,12 @@ function encryptWords(btn: ILoadingButton) {
           v-if="settings.verifyWords"
         >
           <template v-if="settings.verifyWords === 'retype'">
-            <h2 v-if="retypeVerificationIsValid" class="block text-green-700">
-              Verified Successfully!
-            </h2>
+            <div
+              v-if="isVerifyingWords && retypeVerificationIsValid"
+              class="flex space-x-2"
+            >
+              <h2 class="block text-green-700">Verified Successfully!</h2>
+            </div>
             <button
               v-else
               @click.fa-prevent="toggleVerifyingWords"
@@ -320,15 +436,19 @@ function encryptWords(btn: ILoadingButton) {
       </div>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mt-5">
-      <div class="col-span-1 bg-gray-800 rounded-lg">
+    <div v-if="encryptedValue" class="grid grid-cols-1 md:grid-cols-2 gap-3 mt-5">
+      <div
+        id="card"
+        :class="[downloading ? '' : 'rounded-lg']"
+        class="col-span-1 bg-gray-800"
+      >
         <div class="flex justify-between mt-3 mb-2 text-sm text-gray-300 px-3">
           <h5>
             Name: <b class="text-primary-500">{{ passName || "UN_NAMED" }}</b>
           </h5>
-          <small class="text-xs font-mono">
+          <small v-if="settings.showDateInPubicData" class="text-xs font-mono">
             {{
-              encryptedValue
+              encryptedValue && encryptedValue.date
                 ? encryptedValue.date.toDateString() +
                   " " +
                   encryptedValue.date.toLocaleTimeString()
@@ -337,10 +457,20 @@ function encryptWords(btn: ILoadingButton) {
           </small>
         </div>
         <hr class="border-gray-700" />
+
+        <div class="flex justify-around my-5">
+          <img
+            :src="encryptedValueQrCode"
+            class="w-[150px] h-[150px] shadow-lg shadow-primary-500"
+          />
+        </div>
       </div>
       <div class="col-span-1">
-        <div v-if="encryptedValue" class="buttons-menu">
-          <button class="bg-gray-700 hover:bg-gray-800 text-white">
+        <div class="buttons-menu">
+          <button
+            @click.prevent="copyEncryptedValue"
+            class="bg-gray-700 hover:bg-gray-800 text-white"
+          >
             <svg
               xmlns="http://www.w3.org/2000/svg"
               class="h-4 w-4 mt-0.5"
@@ -355,9 +485,13 @@ function encryptWords(btn: ILoadingButton) {
                 d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2"
               />
             </svg>
-            <span>Copy</span>
+            <span>{{ copied ? "Copied!" : "Copy" }}</span>
           </button>
-          <button class="bg-teal-700 hover:bg-teal-800 text-white">
+          <LoadingButton
+            :click="downloadJson"
+            message="Downloading"
+            class="bg-white hover:bg-gray-200 text-black border border-gray-500"
+          >
             <svg
               xmlns="http://www.w3.org/2000/svg"
               class="h-4 w-4 mt-0.5"
@@ -374,8 +508,12 @@ function encryptWords(btn: ILoadingButton) {
             </svg>
 
             <span>Text File</span>
-          </button>
-          <button class="bg-blue-700 hover:bg-blue-800 text-white">
+          </LoadingButton>
+          <LoadingButton
+            class="bg-blue-700 hover:bg-blue-800 text-white"
+            message="Downloading"
+            :click="downloadImage"
+          >
             <svg
               xmlns="http://www.w3.org/2000/svg"
               class="h-4 w-4 mt-0.5"
@@ -391,21 +529,46 @@ function encryptWords(btn: ILoadingButton) {
               />
             </svg>
             <span>Image File</span>
-          </button>
+          </LoadingButton>
+
+          <LoadingButton
+            class="bg-green-700 hover:bg-green-800 text-white"
+            message="Downloading"
+            :click="downloadNodeJsScript"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-4 w-4 mt-0.5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+              />
+            </svg>
+            <span>NodeJs Script</span>
+          </LoadingButton>
         </div>
-        <Debug header="Encrypted Data" :data="encryptedValue"></Debug>
+        <Debug :force-show="true" header="Encrypted Data" :data="encryptedValue"></Debug>
       </div>
     </div>
 
     <div class="mt-5" v-if="isDev">
-      <Debug header="Raw Data" :data="encryptedData()" />
+      <Debug
+        header="Raw Data"
+        :data="{ encryptedValue: encryptedValue ? encryptedValue : null }"
+      />
     </div>
   </div>
 </template>
 
 <style lang="scss">
 .buttons-menu {
-  @apply flex flex-row gap-2 justify-end;
+  @apply flex flex-wrap gap-2 justify-end;
 
   button {
     @apply text-sm rounded-sm px-2 py-0.5 flex space-x-0.5;

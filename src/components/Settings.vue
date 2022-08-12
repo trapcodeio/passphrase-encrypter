@@ -40,7 +40,7 @@ function onNumberOfWordsSettingsKeyUp(e: KeyboardEvent) {
         <label>Verification:</label>
         <select v-model="settings.verifyWords" class="w-32" placeholder="Verify words">
           <option :value="false">None</option>
-          <option value="confirm">Confirm (Medium)</option>
+          <!-- <option value="confirm">Confirm (Medium)</option> -->
           <option value="retype">Retype (Recommended)</option>
         </select>
       </div>
@@ -56,12 +56,17 @@ function onNumberOfWordsSettingsKeyUp(e: KeyboardEvent) {
           <option value="complex">Complex</option>
         </select>
       </div>
+
+      <div>
+        <label>Show DATE in public data.</label>
+        <Toggle v-model="settings.showDateInPubicData"></Toggle>
+      </div>
     </div>
   </div>
 </template>
 <style scoped lang="scss">
 .settings {
-  @apply flex gap-x-3 border-b pb-5;
+  @apply flex flex-wrap gap-3 border-b pb-5;
 
   label {
     @apply text-xs block  px-1 text-gray-600 font-medium;

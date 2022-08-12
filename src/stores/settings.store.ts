@@ -10,10 +10,15 @@ export const settings = reactive({
   /**
    * Set verification mode.
    */
-  verifyWords: ifDev<false | "retype" | "confirm">("retype", false)!,
+  verifyWords: ifDev<false | "retype" | "confirm">(false, false)!,
 
   /**
    * Encryption type.
    */
-  encryptionMethod: ifDev<"simple" | "complex">("complex", "simple")!
+  encryptionMethod: ifDev<"simple" | "complex">("simple", "simple")!,
+
+  /**
+   * Add Date in Image
+   */
+  showDateInPubicData: ifDev(true, false)!
 });
