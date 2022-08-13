@@ -28,6 +28,7 @@ h6 {
 }
 
 input[type="text"],
+input[type="password"],
 input[type="number"] {
     @apply border-2 border-gray-200 rounded-md p-2 focus:outline-primary-600;
 }

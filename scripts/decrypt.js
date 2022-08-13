@@ -63,13 +63,15 @@ if (method === "simple") {
   }
 } else if (method === "complex") {
   try {
+    const COMPLEX_ENCRYPTION_KEY = "|!@#$%^&*(MPPE)|";
+
     // Generate hashed password
     const encryptedPassPhrase = password
       .split("")
       .map((c, i) => {
         return MD5(password + password.substring(0, i)).toString();
       })
-      .join("|!@#$%^&*(MPPE)|".repeat(password.length));
+      .join(COMPLEX_ENCRYPTION_KEY.repeat(password.length));
 
     let data = aesDecrypt(encryptedData.value, encryptedPassPhrase);
     data = JSON.parse(data);
