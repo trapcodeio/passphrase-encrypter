@@ -84,7 +84,8 @@ function decryptWords(btn: ILoadingButton) {
 
 function done() {
   decryptedData.value = undefined;
-  window.location.reload();
+  passPhrase.value = "";
+  encryptedValue.value = "";
 }
 </script>
 
