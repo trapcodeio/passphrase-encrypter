@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { settings } from "../stores/settings.store";
+import { settings, settingsVisibility } from "../stores/settings.store";
 
 // On Number of words settings change, update settings
 function onNumberOfWordsSettingsKeyUp(e: KeyboardEvent) {
@@ -19,11 +19,15 @@ function onNumberOfWordsSettingsKeyUp(e: KeyboardEvent) {
 }
 </script>
 <template>
+  <div class="info">
+    Use this tool only if you have read: <a href="#">How It Works!</a>
+  </div>
+
   <div class="p-3 mt-5 mb-3">
     <h5 class="text-lg text-center uppercase text-gray-700 font-bold">Settings</h5>
 
-    <div class="settings">
-      <div>
+    <div class="settings mt-5">
+      <div v-if="settingsVisibility.numberOfWords.includes($route.name as any)">
         <label>Number of words:</label>
         <input
           @keyup="onNumberOfWordsSettingsKeyUp"
@@ -36,7 +40,7 @@ function onNumberOfWordsSettingsKeyUp(e: KeyboardEvent) {
         />
       </div>
 
-      <div>
+      <div v-if="settingsVisibility.verifyWords.includes($route.name as any)">
         <label>Verification:</label>
         <select v-model="settings.verifyWords" class="w-32" placeholder="Verify words">
           <option :value="false">None</option>
@@ -45,7 +49,7 @@ function onNumberOfWordsSettingsKeyUp(e: KeyboardEvent) {
         </select>
       </div>
 
-      <div>
+      <div v-if="settingsVisibility.encryptionMethod.includes($route.name as any)">
         <label>Encryption Method:</label>
         <select
           v-model="settings.encryptionMethod"
@@ -57,7 +61,7 @@ function onNumberOfWordsSettingsKeyUp(e: KeyboardEvent) {
         </select>
       </div>
 
-      <div>
+      <div v-if="settingsVisibility.showDateInPubicData.includes($route.name as any)">
         <label>Show DATE in public data.</label>
         <Toggle v-model="settings.showDateInPubicData"></Toggle>
       </div>

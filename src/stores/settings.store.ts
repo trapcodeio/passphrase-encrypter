@@ -22,3 +22,12 @@ export const settings = reactive({
    */
   showDateInPubicData: ifDev(true, false)!
 });
+
+export const settingsVisibility = reactive<
+  Record<keyof typeof settings, ("encrypt" | "decrypt")[]>
+>({
+  numberOfWords: ["encrypt"],
+  verifyWords: ["encrypt"],
+  encryptionMethod: ["encrypt", "decrypt"],
+  showDateInPubicData: ["encrypt"]
+});

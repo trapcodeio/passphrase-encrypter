@@ -8,11 +8,13 @@ const app = createApp(App);
 
 // import Components
 import Toggle from "./components/Toggle.vue";
+import Menu from "./components/Menu.vue";
 import LoadingButton from "revue-components/vues/LoadingButton.vue";
 import Debug from "revue-components/vues/Debug.vue";
 
 // Register Components
 app.component("Toggle", Toggle);
+app.component("Menu", Menu);
 app.component("LoadingButton", LoadingButton);
 app.component("Debug", Debug);
 
