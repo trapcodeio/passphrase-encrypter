@@ -6,7 +6,7 @@ import { aesEncrypt, md5 } from "../functions/crypto";
 import { settings } from "../stores/settings.store";
 import { COMPLEX_ENCRYPTION_KEY, ifDev, isDev } from "../functions/env";
 import Settings from "../components/Settings.vue";
-import { useQRCode } from "@vueuse/integrations/useQrCode";
+import { useQRCode } from "@vueuse/integrations/useQRCode";
 import html2canvas from "html2canvas";
 import LoadingButton from "../../node_modules/revue-components/vues/LoadingButton.vue";
 import { useClipboard } from "@vueuse/core";
