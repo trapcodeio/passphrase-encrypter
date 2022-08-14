@@ -15,9 +15,15 @@ You can either use the online version: [passphrase-encrypter.pages.dev](https://
 
 ### Use Built Files.
 
-- Download the already built [dist.zip](https://github.com/trapcodeio/passphrase-encrypter/raw/main/dist.zip) on any device that runs a browser.
-- Extract files to a new folder.
-- Open the index.html file.
+- Download the already built [dist.zip](https://github.com/trapcodeio/passphrase-encrypter/raw/main/dist.zip).
+- Upload to a server.
+
+### Install Locally
+
+- Clone this repo
+- Install dependencies - `npm install`
+- Build Application - `npm run build`
+- Serve Application - `npm run serve`
 
 ## Settings
 
