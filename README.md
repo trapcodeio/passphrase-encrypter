@@ -27,6 +27,8 @@ OR
 
 ### Install Locally
 
+Requires **Nodejs >= 16**
+
 - Clone this repo
 - Install dependencies - `npm install`
 - Build Application - `npm run build`
@@ -85,8 +87,8 @@ Default: `true`
 
 ## Export Formats
 
-- Json Text File
-- Qrcode Image File
+- [Json Text File](#json-text-file)
+- [Qrcode Image File](#qrcode-image-file)
 - [Standalone NodeJS Script](#standalone-nodejs-script)
 
 ### Json Text File
@@ -115,6 +117,8 @@ Password: **`1234567`**
 <br>
 
 ### Standalone NodeJS Script.
+
+Requires **Nodejs >= 10**
 
 Once downloaded, you can run on any NodeJS machine with the right arguments
 
