@@ -4,7 +4,8 @@ import { ref } from "vue";
 export const isDev = import.meta.env.DEV;
 
 /**
- * Define Constants
+ * Define Complex Encryption Key.
+ * This key is used to generate a stronger password.
  */
 export const COMPLEX_ENCRYPTION_KEY = "|!@#$%^&*(MPPE)|";
 

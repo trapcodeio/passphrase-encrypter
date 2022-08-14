@@ -2,7 +2,7 @@
 import { computed, reactive, ref, watch } from "vue";
 import type { ILoadingButton } from "revue-components/vues/component-types";
 import { ordinalSuffixOf } from "../functions/string";
-import { aesEncrypt, md5 } from "../functions/crypto";
+import { aesEncrypt, generateComplexPassword, md5 } from "../functions/crypto";
 import { settings } from "../stores/settings.store";
 import { COMPLEX_ENCRYPTION_KEY, ifDev, isDev } from "../functions/env";
 import Settings from "../components/Settings.vue";
@@ -229,36 +229,18 @@ function encryptWords(btn: ILoadingButton) {
 
   const e = encryptedData();
   const eJson = JSON.stringify(e);
+  const isComplex = settings.encryptionMethod === "complex";
 
-  if (settings.encryptionMethod === "simple") {
-    encryptedValue.value = {
-      name: e.name,
-      date: e.date,
-      value: aesEncrypt(eJson, passPhrase.value)
-    };
-  } else {
-    /**
-     * Complex Encryption Steps
-     *  1. Encrypt each character in the pass phrase using the passphrase + substring value of the current index position.
-     *  2. Join the encrypted characters.
-     *  3. Encrypt the json string using the joined characters as the key.
-     */
-
-    // Encrypt each character in the pass phrase & join the encrypted characters
-    const encryptedPassPhrase = passPhrase.value
-      .split("")
-      .map((c, i) => {
-        return md5(passPhrase.value + passPhrase.value.substring(0, i));
-      })
-      .join(COMPLEX_ENCRYPTION_KEY.repeat(passPhrase.value.length));
-
-    // Encrypt the json string using the joined characters as the key
-    encryptedValue.value = {
-      name: e.name,
-      date: e.date,
-      value: aesEncrypt(eJson, encryptedPassPhrase)
-    };
-  }
+  encryptedValue.value = {
+    name: e.name,
+    date: e.date,
+    value: aesEncrypt(
+      eJson,
+      isComplex
+        ? generateComplexPassword(passPhrase.value, COMPLEX_ENCRYPTION_KEY)
+        : passPhrase.value
+    )
+  };
 
   btn.stopLoading();
 }

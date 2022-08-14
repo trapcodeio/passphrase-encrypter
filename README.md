@@ -13,7 +13,7 @@ Encrypt your passphrase, secretKeys, backup keys e.t.c Using simple or complex <
 
 ## Settings
 
-- Number of Words
+- [Number Of Words](#number-of-words)
 - Verification
 - Encryption Method
 - Show DATE in public data.
@@ -22,16 +22,41 @@ Encrypt your passphrase, secretKeys, backup keys e.t.c Using simple or complex <
 
 The number of words you want to encrypt. This also determines the number of input boxes that will be provided for you.
 <br>
-Min: `1` Max: `50`, Default: `12`
+Min: `1` Max: `50` Default: `12`
 
 ### Verification
 
-if enabled, This ensures that the words you entered are correct by providing another form for you to re-type and verify words.
+If enabled, This ensures that the words you entered are correct by providing another form for you to re-type and verify words.
 <br>
 Default: `false`
 
-## Encryption Method
+### Encryption Method
 
 There are two encryption methods provided: `Simple` and `Complex`
 
-## Decryption
+#### Simple Encryption Method
+
+This method is direct and straight to the point. Your data is encrypted using your password directly. This means you can use any **AES Decrypter** to decrypt your **encrypted** value without depending on this application.
+
+```js
+password = "1234567";
+encrypted = AesEncryptFunction(data, password);
+```
+
+#### Complex Encryption Method.
+
+This method is **EXTREMELY SECURE** but can only be **decrypted** using this application because **it does not use your password to encrypt data.**.
+
+Yes! Your password is used to generate a **Longer & Stronger Password** using a **`COMPLEX_ENCRYPTION_KEY` and `Md5 Hashing`** method.
+
+```js
+password = "1234567";
+generatedPassword = GeneratePassword(password);
+encrypted = AesEncryptFunction(data, generatedPassword);
+```
+
+### Show DATE in public data.
+
+If enabled, Date of encryption will be publicly visible in the encrypted document. For best anonymity, this should be turned **off**.
+<br>
+Default: `true`

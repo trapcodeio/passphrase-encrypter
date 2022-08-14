@@ -2,7 +2,7 @@
 import type { ILoadingButton } from "revue-components/vues/component-types";
 import { computed, ref } from "vue";
 import Settings from "../components/Settings.vue";
-import { aesDecrypt, md5 } from "../functions/crypto";
+import { aesDecrypt, generateComplexPassword, md5 } from "../functions/crypto";
 import { COMPLEX_ENCRYPTION_KEY, ifDev } from "../functions/env";
 import { ordinalSuffixOf } from "../functions/string";
 import { settings } from "../stores/settings.store";
@@ -52,26 +52,14 @@ function decryptWords(btn: ILoadingButton) {
   const password = passPhrase.value;
   if (!password) return btn.stopLoading();
 
-  const method = settings.encryptionMethod;
+  const isComplex = settings.encryptionMethod === "complex";
   const context = encryptedValueJson.value.value;
 
   try {
-    let data: string | EncryptedData;
-
-    if (method === "simple") {
-      // Decrypt data
-      data = aesDecrypt(context, password);
-    } else {
-      // Generate hashed password
-      const encryptedPassPhrase = password
-        .split("")
-        .map((c, i) => {
-          return md5(password + password.substring(0, i));
-        })
-        .join(COMPLEX_ENCRYPTION_KEY.repeat(password.length));
-
-      data = aesDecrypt(context, encryptedPassPhrase);
-    }
+    let data: string | EncryptedData = aesDecrypt(
+      context,
+      isComplex ? generateComplexPassword(password, COMPLEX_ENCRYPTION_KEY) : password
+    );
 
     data = JSON.parse(data) as EncryptedData;
     if (data.date) data.date = new Date(data.date);

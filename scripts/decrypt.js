@@ -55,23 +55,36 @@ function aesDecrypt(str, key) {
   return AES.decrypt(str, key).toString(encUtf8);
 }
 
+/**
+ * Generate a complex password
+ */
+function generateComplexPassword(password, complexKey) {
+  /**
+   * Complex Encryption Steps
+   *  1. Split each character in password.
+   *  2. Map and convert to md5 hash of each character + substring value of index.
+   *  3. Join with complex key repeated to length of password.
+   */
+
+  // Encrypt each character in the pass phrase & join the encrypted characters
+  return password
+    .split("")
+    .map((c, i) => {
+      return MD5(password + password.substring(0, i)).toString();
+    })
+    .join(complexKey.repeat(password.length));
+}
+
+// Constant and never changes
+const COMPLEX_ENCRYPTION_KEY = "|!@#$%^&*(MPPE)|";
+
 try {
-  let data;
-  if (method === "simple") {
-    data = aesDecrypt(encryptedData.value, password);
-  } else {
-    const COMPLEX_ENCRYPTION_KEY = "|!@#$%^&*(MPPE)|";
-
-    // Generate hashed password
-    const encryptedPassPhrase = password
-      .split("")
-      .map((c, i) => {
-        return MD5(password + password.substring(0, i)).toString();
-      })
-      .join(COMPLEX_ENCRYPTION_KEY.repeat(password.length));
-
-    data = aesDecrypt(encryptedData.value, encryptedPassPhrase);
-  }
+  let data = aesDecrypt(
+    encryptedData.value,
+    method === "complex"
+      ? generateComplexPassword(password, COMPLEX_ENCRYPTION_KEY)
+      : password
+  );
 
   // parse to object
   data = JSON.parse(data);

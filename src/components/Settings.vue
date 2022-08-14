@@ -21,7 +21,10 @@ function onNumberOfWordsSettingsKeyUp(e: KeyboardEvent) {
 <template>
   <div class="info flex justify-center space-x-1">
     <span>Use this tool only if you have read:</span>
-    <a href="#" class="inline"
+    <a
+      target="_blank"
+      href="https://github.com/trapcodeio/passphrase-encrypter/blob/main/README.md"
+      class="inline"
       ><span class="inline-block">How It Works!</span>
       <svg
         xmlns="http://www.w3.org/2000/svg"
