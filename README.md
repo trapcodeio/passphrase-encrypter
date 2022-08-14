@@ -15,7 +15,7 @@ You can either use the online version: [passphrase-encrypter.pages.dev](https://
 
 ### Use Built Files.
 
-- Download the already built [dist.zip](./dist.zip) on any device that runs a browser.
+- Download the already built [dist.zip](https://github.com/trapcodeio/passphrase-encrypter/raw/main/dist.zip) on any device that runs a browser.
 - Extract files to a new folder.
 - Open the index.html file.
 
