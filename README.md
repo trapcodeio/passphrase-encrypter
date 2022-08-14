@@ -128,3 +128,12 @@ node file.js simple YourPassword
 # Complex
 node file.js complex YourPassword
 ```
+
+If successful the result will look like this.
+
+<br>
+
+<p align="center" style="border-radius: 20px">
+  <img width="500" src="./about/test-cli.png"/>
+</p>
+<br>
