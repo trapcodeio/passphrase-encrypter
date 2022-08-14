@@ -19,7 +19,7 @@ h6 {
     @apply rounded-lg bg-gray-100 mt-3 shadow-sm border border-gray-400 border-opacity-60;
 
     .info {
-        @apply p-2 text-center text-sm font-medium bg-gray-200 tracking-wider text-primary-500 rounded-t-lg border-b-2 border-gray-200;
+        @apply p-2 text-center text-xs md:text-sm font-medium bg-gray-200 tracking-wider text-primary-500 rounded-t-lg border-b-2 border-gray-200;
 
         a {
             @apply text-blue-500;

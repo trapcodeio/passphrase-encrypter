@@ -169,6 +169,10 @@ function validateWords(checkRequired = false) {
   return inputErrors.length === 0;
 }
 
+/**
+ * Validates words in realtime.
+ * @param time
+ */
 function validateWordsRealTime(time = 400) {
   if (timeout) clearTimeout(timeout);
   timeout = setTimeout(() => validateWords(true), time);
@@ -197,6 +201,10 @@ function encryptedData(): EncryptedData {
   };
 }
 
+/**
+ * Convert words to Object
+ * with index starting from 1
+ */
 function convertInputValuesToObject() {
   const obj: Record<string, string> = {};
 
@@ -255,11 +263,18 @@ function encryptWords(btn: ILoadingButton) {
   btn.stopLoading();
 }
 
+/**
+ * Copy encrypted data to clipboard.
+ */
 function copyEncryptedValue() {
   if (encryptedValue.value) {
     copy(JSON.stringify(encryptedValue.value));
   }
 }
+
+/**
+ * Download encrypted data as qr code.
+ */
 const downloading = ref(false);
 function downloadImage(btn: ILoadingButton) {
   downloading.value = true;
@@ -279,6 +294,9 @@ function downloadImage(btn: ILoadingButton) {
   }, 1000);
 }
 
+/**
+ * Download encrypted data as json.
+ */
 function downloadJson(btn: ILoadingButton) {
   downloading.value = true;
   setTimeout(() => {
@@ -295,6 +313,9 @@ function downloadJson(btn: ILoadingButton) {
   }, 1000);
 }
 
+/**
+ * Download encrypted data as nodejs script.
+ */
 function downloadNodeJsScript(btn: ILoadingButton) {
   downloading.value = true;
   setTimeout(() => {
@@ -340,20 +361,26 @@ function downloadNodeJsScript(btn: ILoadingButton) {
       </div>
 
       <div class="flex gap-2 flex-wrap mt-5 justify-center mb-10">
-        <div v-for="(v, i) of '*'.repeat(settings.numberOfWords).split('')">
-          <label class="block text-sm text-gray-500 px-1">{{ i + 1 }}.</label>
-          <input
-            @keyup="(e) => onInputValuesChange(e, i)"
-            :value="isVerifyingWords ? retypeValues[i] : inputValues[i]"
-            type="text"
-            :placeholder="`${ordinalSuffixOf(i + 1)} Word`"
-          />
-          <p
-            class="text-red-600 text-xs font-medium px-1"
-            v-show="inputErrors[i]"
-            v-html="inputErrors[i]"
-          ></p>
-        </div>
+        <template
+          v-for="(v, i) of '*'.repeat(settings.numberOfWords).split('')"
+          :key="v + i"
+        >
+          <div>
+            <label class="block text-sm text-gray-500 px-1">{{ i + 1 }}.</label>
+            <input
+              @keyup="(e) => onInputValuesChange(e, i)"
+              :value="isVerifyingWords ? retypeValues[i] : inputValues[i]"
+              type="text"
+              class="w-36 md:w-auto"
+              :placeholder="`${ordinalSuffixOf(i + 1)} Word`"
+            />
+            <p
+              class="text-red-600 text-xs font-medium px-1"
+              v-show="inputErrors[i]"
+              v-html="inputErrors[i]"
+            ></p>
+          </div>
+        </template>
       </div>
 
       <p v-if="!settings.verifyWords" class="my-8 text-center text-sm text-gray-500">

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ILoadingButton } from "revue-components/vues/component-types";
+import type { ILoadingButton } from "revue-components/vues/component-types";
 import { computed, ref } from "vue";
 import Settings from "../components/Settings.vue";
 import { aesDecrypt, md5 } from "../functions/crypto";
@@ -50,6 +50,8 @@ function decryptWords(btn: ILoadingButton) {
   if (!encryptedValueJson.value) return btn.stopLoading();
 
   const password = passPhrase.value;
+  if (!password) return btn.stopLoading();
+
   const method = settings.encryptionMethod;
   const context = encryptedValueJson.value.value;
 
@@ -270,9 +272,5 @@ function done() {
         </div>
       </div>
     </div>
-  </div>
-
-  <div class="mt-5">
-    <Debug :data="{ decryptedData }" />
   </div>
 </template>
