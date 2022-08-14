@@ -1,5 +1,5 @@
 {
-  "name": "vue-vite-typescript-tailwindcss",
+  "name": "passphrase-encrypter",
   "version": "1.0.0",
   "scripts": {
     "dev": "npm run bundle && vite --host --port 1666",
