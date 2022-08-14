@@ -13,7 +13,11 @@ Encrypt your  passphrase, secretKeys, backup keys e.t.c Using simple or complex 
 
 You can either use the online version: [passphrase-encrypter.pages.dev](https://passphrase-encrypter.pages.dev) or:
 
-- Clone this project to your machine.
+### Use Built Files.
+
+- Download the already built [dist.zip](./dist.zip) on any device that runs a browser.
+- Extract files to a new folder.
+- Open the index.html file.
 
 ## Settings
 
