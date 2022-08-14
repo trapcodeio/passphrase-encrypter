@@ -5,18 +5,18 @@
 </p>
 
 <p align="center" style="font-size: 16px; font-weight: medium; margin-bottom: 25px">
-Encrypt your  passphrase, secretKeys, backup keys e.t.c Using simple or complex <b>AES Encryption</b> on the browser. <span style="color: green">(No server or external requests) 👍 🔒 <span>
+Encrypt your  passphrase, secretKeys, backup keys e.t.c Using simple or complex <b>AES Encryption</b> in the browser. <span style="color: green">(No server or external requests) 👍 🔒 <span>
 </p>
 <br>
 
 ## How To Use
 
-You can either use the online version: [passphrase-encrypter.pages.dev](https://passphrase-encrypter.pages.dev) or:
+You can either use the **online version:**
 
-### Use Built Files.
+- [passphrase-encrypter.eth.link](https://passphrase-encrypter.eth.link): Hosted openly on the blockchain via [IPFS](https://ipfs.io)
+- [passphrase-encrypter.pages.dev](https://passphrase-encrypter.pages.dev): Hosted and served by [Cloudflare Pages](https://pages.cloudflare.com/) directly from this repository.
 
-- Download the already built [dist.zip](https://github.com/trapcodeio/passphrase-encrypter/raw/main/dist.zip).
-- Upload to a server.
+OR
 
 ### Install Locally
 
