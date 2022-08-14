@@ -5,18 +5,22 @@
 </p>
 
 <p align="center" style="font-size: 16px; font-weight: medium; margin-bottom: 25px">
-Encrypt your passphrase, secretKeys, backup keys e.t.c Using simple or complex <b>AES Encryption</b>
+Encrypt your  passphrase, secretKeys, backup keys e.t.c Using simple or complex <b>AES Encryption</b> on the browser. <span style="color: green">(No server or external requests) 👍 🔒 <span>
 </p>
 <br>
 
-## Faq
+## How To Use
+
+You can either use the online version: [passphrase-encrypter.pages.dev](https://passphrase-encrypter.pages.dev) or:
+
+- Clone this project to your machine.
 
 ## Settings
 
 - [Number Of Words](#number-of-words)
-- Verification
-- Encryption Method
-- Show DATE in public data.
+- [Verification](#verification)
+- [Encryption Method](#encryption-method)
+- [Show DATE in public data](#show-date-in-public-data)
 
 ### Number of Words
 
@@ -32,7 +36,8 @@ Default: `false`
 
 ### Encryption Method
 
-There are two encryption methods provided: `Simple` and `Complex`
+There are two encryption methods provided: `Simple` and `Complex`.
+All encryption are done in your browser.
 
 #### Simple Encryption Method
 
