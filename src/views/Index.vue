@@ -27,7 +27,7 @@ const passPhraseIsVisible = ref(false);
 /**
  * The name of this encryption method.
  */
-const passName = ref(ifDev("ledger", "")!);
+const passName = ref(ifDev("TrustWallet", "")!);
 
 /**
  * Input model for all inputs
