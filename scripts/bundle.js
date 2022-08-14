@@ -1,19 +1,34 @@
-// const UglifyJS = require("uglify-js");
+/**
+ * This file builds the "bundle.min.js" file that is injected into
+ * the vite config file.
+ */
 const fs = require("fs");
 const { EOL } = require("os");
 const es = require("esbuild");
 const zlib = require("zlib");
 
-const files = [];
+// Bundled files
+const bundledFiles = [];
 
+// Get main decrypt file
 let content = fs.readFileSync(__dirname + "/decrypt.js").toString("utf8");
+
+// find injection point
 content = content.split("// ===== injection =====");
+
+// Inject encrypted data placeholder into main file
 content[1] = 'const encryptedData = "{{encryptedData}}";';
+
+// join contents using the current os EOL
 content = content.join(EOL);
 
+// make path to bundled converted file.
 const convertedFile = __dirname + "/decrypt.min.js";
+
+// Write to converted file
 fs.writeFileSync(convertedFile, content);
 
+// Build the converted file
 es.buildSync({
   entryPoints: [convertedFile],
   format: "cjs",
@@ -25,10 +40,17 @@ es.buildSync({
   minify: true
 });
 
-files.push(getGzippedSize(convertedFile));
+// add to bundled files
+bundledFiles.push(getGzippedSize(convertedFile));
 
 // Log Bundled Files
-console.table(files);
+console.table(bundledFiles);
+
+/**
+ * ===================================================
+ * ==================== FUNCTIONS ====================
+ * ===================================================
+ */
 
 /**
  * Format bytes as human-readable text.
