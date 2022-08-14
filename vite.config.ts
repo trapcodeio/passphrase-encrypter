@@ -12,6 +12,6 @@ process.env.VITE_JS_DECRYPT_FILE = fs.readFileSync(
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  base: "./",
+  // base: "./",
   plugins: [qrcode(), vue()]
 });
