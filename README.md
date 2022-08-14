@@ -4,6 +4,6 @@
   <img width="500" src="./about/mppe.png"/>
 </p>
 
-<h3 align="center">
+<h4 align="center">
 Encrypt your passphrase, secretKeys, backup keys e.t.c Using simple or complex <b>AES Encryption</b>
-</h3>
+</h4>
