@@ -95,7 +95,9 @@ try {
     data.date = data.date.toDateString() + " - " + data.date.toLocaleTimeString();
   }
 
-  console.dir(data, { depth: null });
+  const { words, ...rest } = data;
+  console.dir(rest, { depth: null });
+  console.table(words);
 } catch (e) {
   console.log("Cannot decrypt data using the password provided!");
 }

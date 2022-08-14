@@ -9,6 +9,13 @@ Encrypt your  passphrase, secretKeys, backup keys e.t.c Using simple or complex 
 </p>
 <br>
 
+## Highlights
+
+- Client Side AES Encryption
+- Encrypt & Decrypt Interface
+- Multiple Encryption methods
+- Save as `json`, `qrcode` or [Standalone NodeJS Script](#standalone-nodejs-script)
+
 ## How To Use
 
 You can either use the **online version:**
@@ -75,3 +82,49 @@ encrypted = AesEncryptFunction(data, generatedPassword);
 If enabled, Date of encryption will be publicly visible in the encrypted document. For best anonymity, this should be turned **off**.
 <br>
 Default: `true`
+
+## Export Formats
+
+- Json Text File
+- Qrcode Image File
+- [Standalone NodeJS Script](#standalone-nodejs-script)
+
+### Json Text File
+
+Example of an exported json text file.
+<br>
+Password: **`1234567`**
+
+```json
+{
+  "name": "test",
+  "value": "U2FsdGVkX19OMXnOV9MK6/6UieQzZ2qiTMwbQ46lNIteHe5A3avTwtPGl803Ofeni2Nfw5ABl+NJ8DWR3+XMGo73ww4hCcctWfMahlds6oT14PVTCiSAhNWR54M5MKim0zqMKzu13bBnfkx8RUlJI/2oz+DbKDN2aoiGVXVolS9BMwhKUvA3v4FMq1hUu2tk"
+}
+```
+
+### Qrcode Image File
+
+Example of an exported image file. The qrcode holds a [Json Text File](#json-text-file) content.
+<br>
+Password: **`1234567`**
+
+<br>
+<p align="center" style="border-radius: 20px">
+  <img width="500" src="./about/test.png"/>
+</p>
+<br>
+
+### Standalone NodeJS Script.
+
+Once downloaded, you can run on any NodeJS machine with the right arguments
+
+```sh
+# Syntax
+node file.js <method> <password>
+
+# Simple
+node file.js simple YourPassword
+
+# Complex
+node file.js complex YourPassword
+```
