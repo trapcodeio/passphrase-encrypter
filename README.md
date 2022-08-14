@@ -22,16 +22,16 @@ Encrypt your passphrase, secretKeys, backup keys e.t.c Using simple or complex <
 
 The number of words you want to encrypt. This also determines the number of input boxes that will be provided for you.
 <br>
-**Min: `1` Max: `50`, Default: `12`**
+Min: `1` Max: `50`, Default: `12`
 
 ### Verification
 
 if enabled, This ensures that the words you entered are correct by providing another form for you to re-type and verify words.
 <br>
-**Default: `false`**
+Default: `false`
 
 ## Encryption Method
 
-There are two encryption methods provided: **`Simple` and `Complex`**
+There are two encryption methods provided: `Simple` and `Complex`
 
 ## Decryption
