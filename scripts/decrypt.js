@@ -22,7 +22,9 @@ if (!method || !password) {
 /**
  * Decrypt Standalone File.
  */
-const { MD5, AES, enc } = require("crypto-js");
+const MD5 = require("crypto-js/md5");
+const AES = require("crypto-js/aes");
+const encUtf8 = require("crypto-js/enc-utf8");
 
 /**
  * Inject Encrypted data
@@ -50,7 +52,7 @@ function aesEncrypt(str, key) {
  * @returns string
  */
 function aesDecrypt(str, key) {
-  return AES.decrypt(str, key).toString(enc.Utf8);
+  return AES.decrypt(str, key).toString(encUtf8);
 }
 
 try {
@@ -82,6 +84,5 @@ try {
 
   console.dir(data, { depth: null });
 } catch (e) {
-  console.log(e.message);
-  console.log("Cannot decrypt data using the provided password!");
+  console.log("Cannot decrypt data using the password provided!");
 }

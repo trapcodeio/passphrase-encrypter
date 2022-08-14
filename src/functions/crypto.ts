@@ -1,4 +1,7 @@
-import { MD5, AES, enc } from "crypto-js";
+// import { MD5, AES, enc } from "crypto-js";
+import MD5 from "crypto-js/md5";
+import AES from "crypto-js/aes";
+import encUtf8 from "crypto-js/enc-utf8";
 
 /**
  * Hash a string using MD5
@@ -23,7 +26,7 @@ export function aesEncrypt(str: string, key: string) {
  * @returns string
  */
 export function aesDecrypt(str: string, key: string) {
-  return AES.decrypt(str, key).toString(enc.Utf8);
+  return AES.decrypt(str, key).toString(encUtf8);
 }
 
 /**
