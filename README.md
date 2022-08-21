@@ -124,13 +124,7 @@ Once downloaded, you can run on any NodeJS machine with the right arguments
 
 ```sh
 # Syntax
-node file.js <method> <password>
-
-# Simple
-node file.js simple YourPassword
-
-# Complex
-node file.js complex YourPassword
+node file.js
 ```
 
 If successful the result will look like this.
