@@ -33,6 +33,7 @@ es.buildSync({
   entryPoints: [convertedFile],
   format: "cjs",
   outfile: convertedFile,
+  platform: "node",
   allowOverwrite: true,
   //   target: "es6",
   bundle: true,
