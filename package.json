@@ -5,8 +5,7 @@
     "dev": "npm run bundle && vite --host --port 1666",
     "build": "npm run bundle && vue-tsc --noEmit && vite build",
     "serve": "vite preview",
-    "bundle": "node ./scripts/bundle.js",
-    "zip": "npm run build && node ./scripts/zip.js"
+    "bundle": "node ./scripts/bundle.js"
   },
   "dependencies": {
     "@vueuse/integrations": "^9.1.0",
@@ -26,7 +25,6 @@
     "@types/tailwindcss": "^3.1.0",
     "@vitejs/plugin-vue": "^3.0.1",
     "@vue/compiler-sfc": "^3.2.37",
-    "adm-zip": "^0.5.9",
     "autoprefixer": "^10.4.8",
     "esbuild": "^0.15.2",
     "postcss": "^8.4.16",
