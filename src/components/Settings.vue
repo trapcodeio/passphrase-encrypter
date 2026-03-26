@@ -69,18 +69,6 @@ function onNumberOfWordsSettingsKeyUp(e: KeyboardEvent) {
         </select>
       </div>
 
-      <div v-if="settingsVisibility.encryptionMethod.includes($route.name as any)">
-        <label>Encryption Method:</label>
-        <select
-          v-model="settings.encryptionMethod"
-          class="w-32"
-          placeholder="Encryption Method"
-        >
-          <option value="simple">Simple</option>
-          <option value="complex">Complex</option>
-        </select>
-      </div>
-
       <div v-if="settingsVisibility.showDateInPubicData.includes($route.name as any)">
         <label>Show DATE in public data.</label>
         <Toggle v-model="settings.showDateInPubicData"></Toggle>

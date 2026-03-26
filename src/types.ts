@@ -3,7 +3,7 @@ import type { settings } from "./stores/settings.store";
 export interface EncryptedData {
   name?: string;
   date?: Date;
-  settings: Pick<settings, "numberOfWords" | "encryptionMethod">;
+  settings: Pick<settings, "numberOfWords">;
   words: Record<string, string>;
 }
 

@@ -13,11 +13,6 @@ export const settings = reactive({
   verifyWords: ifDev<false | "retype" | "confirm">(false, false)!,
 
   /**
-   * Encryption type.
-   */
-  encryptionMethod: ifDev<"simple" | "complex">("simple", "simple")!,
-
-  /**
    * Add Date in Image
    */
   showDateInPubicData: ifDev(true, false)!
@@ -30,6 +25,5 @@ export const settingsVisibility = reactive<
 >({
   numberOfWords: ["encrypt"],
   verifyWords: ["encrypt"],
-  encryptionMethod: ["encrypt", "decrypt"],
   showDateInPubicData: ["encrypt"]
 });

@@ -38,7 +38,8 @@ es.buildSync({
   //   target: "es6",
   bundle: true,
   legalComments: "none",
-  minify: true
+  minify: true,
+  external: ["crypto"]
 });
 
 // add to bundled files

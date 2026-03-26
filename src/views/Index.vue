@@ -2,9 +2,9 @@
 import { computed, reactive, ref, watch } from "vue";
 import type { ILoadingButton } from "revue-components/vues/component-types";
 import { ordinalSuffixOf } from "../functions/string";
-import { aesEncrypt, generateComplexPassword, md5 } from "../functions/crypto";
+import { encrypt } from "../functions/crypto";
 import { settings } from "../stores/settings.store";
-import { COMPLEX_ENCRYPTION_KEY, ifDev, isDev } from "../functions/env";
+import { ifDev, isDev } from "../functions/env";
 import Settings from "../components/Settings.vue";
 import { useQRCode } from "@vueuse/integrations/useQRCode";
 import html2canvas from "html2canvas";
@@ -191,12 +191,11 @@ function toggleVerifyingWords() {
  * Get encrypted data.
  */
 function encryptedData(): EncryptedData {
-  const { encryptionMethod, numberOfWords } = settings;
+  const { numberOfWords } = settings;
   return {
     name: passName.value,
     date: settings.showDateInPubicData ? new Date() : undefined,
-    settings: { encryptionMethod, numberOfWords },
-    // convert inputValues to object to make it easier to read.
+    settings: { numberOfWords },
     words: convertInputValuesToObject()
   };
 }
@@ -219,7 +218,7 @@ function convertInputValuesToObject() {
  * Validate Inputs, and if valid, generate pass phrase.
  * @param btn - The button current button instance
  */
-function encryptWords(btn: ILoadingButton) {
+async function encryptWords(btn: ILoadingButton) {
   if (!passPhrase.value) {
     return btn.stopLoading(() => alert("Please enter a pass phrase"));
   }
@@ -227,22 +226,20 @@ function encryptWords(btn: ILoadingButton) {
   const isValid = validateWords();
   if (!isValid) return btn.stopLoading();
 
-  const e = encryptedData();
-  const eJson = JSON.stringify(e);
-  const isComplex = settings.encryptionMethod === "complex";
+  try {
+    const e = encryptedData();
+    const eJson = JSON.stringify(e);
 
-  encryptedValue.value = {
-    name: e.name,
-    date: e.date,
-    value: aesEncrypt(
-      eJson,
-      isComplex
-        ? generateComplexPassword(passPhrase.value, COMPLEX_ENCRYPTION_KEY)
-        : passPhrase.value
-    )
-  };
-
-  btn.stopLoading();
+    encryptedValue.value = {
+      name: e.name,
+      date: e.date,
+      value: await encrypt(eJson, passPhrase.value)
+    };
+  } catch (err: any) {
+    alert("Encryption failed: " + (err.message || "Unknown error"));
+  } finally {
+    btn.stopLoading();
+  }
 }
 
 /**
@@ -359,7 +356,7 @@ function downloadNodeJsScript(btn: ILoadingButton) {
             <p
               class="text-red-600 text-xs font-medium px-1"
               v-show="inputErrors[i]"
-              v-html="inputErrors[i]"
+              v-text="inputErrors[i]"
             ></p>
           </div>
         </template>
@@ -449,7 +446,7 @@ function downloadNodeJsScript(btn: ILoadingButton) {
             class="bg-primary-700 mt-4 text-white px-5 py-1.5 text-lg tracking-wide font-medium rounded-sm shadow-sm capitalize flex space-x-1"
             message="Encrypting"
           >
-            <span> {{ settings.encryptionMethod }} Encrypt</span>
+            <span>Encrypt</span>
             <svg
               xmlns="http://www.w3.org/2000/svg"
               class="h-6 w-6"

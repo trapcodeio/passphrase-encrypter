@@ -1,12 +1,7 @@
-import { ref } from "vue";
-
 // Set isDev value
 export const isDev = import.meta.env.DEV;
 
-/**
- * Define Complex Encryption Key.
- * This key is used to generate a stronger password.
- */
+/** @legacy Used only for decrypting v1 blobs encrypted with "complex" mode. */
 export const COMPLEX_ENCRYPTION_KEY = "|!@#$%^&*(MPPE)|";
 
 /**

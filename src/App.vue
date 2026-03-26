@@ -6,7 +6,7 @@ import { isDev } from "./functions/env";
     <h2 class="text-2xl font-bold text-center">
       <span class="text-gray-700">Mnemonic</span>
       <span class="text-primary-700 mx-2">Pass Phrase</span>
-      <span class="text-gray-700">Encrypter</span>
+      <span class="text-gray-700">Encrypter V2</span>
       <sup class="text-primary-700 font-bold text-sm ml-2">(Open Source)</sup>
     </h2>
 

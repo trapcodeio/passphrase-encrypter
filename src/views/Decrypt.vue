@@ -2,8 +2,8 @@
 import type { ILoadingButton } from "revue-components/vues/component-types";
 import { computed, ref } from "vue";
 import Settings from "../components/Settings.vue";
-import { aesDecrypt, generateComplexPassword, md5 } from "../functions/crypto";
-import { COMPLEX_ENCRYPTION_KEY, ifDev } from "../functions/env";
+import { decrypt } from "../functions/crypto";
+import { ifDev } from "../functions/env";
 import { ordinalSuffixOf } from "../functions/string";
 import { settings } from "../stores/settings.store";
 import { EncryptedData, EncryptedJson } from "../types";
@@ -46,30 +46,25 @@ function pasteFromClipboard() {
   }
 }
 
-function decryptWords(btn: ILoadingButton) {
+async function decryptWords(btn: ILoadingButton) {
   if (!encryptedValueJson.value) return btn.stopLoading();
 
   const password = passPhrase.value;
   if (!password) return btn.stopLoading();
 
-  const isComplex = settings.encryptionMethod === "complex";
   const context = encryptedValueJson.value.value;
 
   try {
-    let data: string | EncryptedData = aesDecrypt(
-      context,
-      isComplex ? generateComplexPassword(password, COMPLEX_ENCRYPTION_KEY) : password
-    );
-
-    data = JSON.parse(data) as EncryptedData;
+    const result = await decrypt(context, password);
+    let data = JSON.parse(result) as EncryptedData;
     if (data.date) data.date = new Date(data.date);
 
     decryptedData.value = data;
   } catch (e: any) {
     alert("Cannot decrypt data using the provided password!");
+  } finally {
+    btn.stopLoading();
   }
-
-  btn.stopLoading();
 }
 
 function done() {
@@ -245,7 +240,7 @@ function done() {
             class="bg-primary-700 mt-4 disabled:bg-gray-800 disabled:opacity-50 text-white px-5 py-1.5 text-lg tracking-wide font-medium rounded-sm shadow-sm capitalize flex space-x-1 mx-auto"
             message="Decrypting"
           >
-            <span> {{ settings.encryptionMethod }} Decrypt</span>
+            <span>Decrypt</span>
             <svg
               xmlns="http://www.w3.org/2000/svg"
               class="h-6 w-6"
