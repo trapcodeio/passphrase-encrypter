@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, reactive, ref, watch } from "vue";
+import { computed, onMounted, reactive, ref, watch } from "vue";
 import type { ILoadingButton } from "revue-components/vues/component-types";
 import { ordinalSuffixOf } from "../functions/string";
 import { encrypt } from "../functions/crypto";
@@ -11,8 +11,14 @@ import html2canvas from "html2canvas";
 import LoadingButton from "../../node_modules/revue-components/vues/LoadingButton.vue";
 import { useClipboard } from "@vueuse/core";
 import { EncryptedData, EncryptedJson } from "../types";
+import { migrationData, clearMigrationData } from "../stores/migration.store";
 
 const { copy, copied } = useClipboard();
+
+/**
+ * Whether the encrypt page was opened from a v1 migration
+ */
+const isMigrating = ref(false);
 
 const langFiles = {
   nodeJs: import.meta.env.VITE_JS_DECRYPT_FILE
@@ -38,6 +44,32 @@ const inputValues = reactive<string[]>(ifDev(["force", "smith", "brave"], [])!);
  * Input model for all retype confirmation inputs
  */
 const retypeValues = reactive<string[]>([]);
+
+/**
+ * On mount, check if we have migration data from the decrypt page.
+ * Pre-fill the form with the decrypted words and name.
+ */
+onMounted(() => {
+  if (migrationData.value) {
+    const data = migrationData.value;
+
+    // Set name
+    passName.value = data.name || "";
+
+    // Set number of words in settings
+    const words = Object.values(data.words);
+    settings.numberOfWords = words.length;
+
+    // Pre-fill input values
+    inputValues.length = 0;
+    words.forEach((word) => inputValues.push(word));
+
+    isMigrating.value = true;
+
+    // Clear migration data so it doesn't persist
+    clearMigrationData();
+  }
+});
 
 /**
  * Will be set to true to show the verification section
@@ -235,6 +267,9 @@ async function encryptWords(btn: ILoadingButton) {
       date: e.date,
       value: await encrypt(eJson, passPhrase.value)
     };
+
+    // Clear migration state after successful encryption
+    isMigrating.value = false;
   } catch (err: any) {
     alert("Encryption failed: " + (err.message || "Unknown error"));
   } finally {
@@ -320,6 +355,18 @@ function downloadNodeJsScript(btn: ILoadingButton) {
     <Settings />
 
     <div class="mt-8 p-3">
+      <!-- Migration Banner -->
+      <div
+        v-if="isMigrating"
+        class="bg-blue-900/50 border border-blue-500 rounded-md p-3 mb-4 mx-auto max-w-lg text-center"
+      >
+        <p class="text-blue-200 text-sm">
+          Migrating from v1. Your words have been pre-filled.
+          <br />
+          Enter a password and encrypt to upgrade to v2.
+        </p>
+      </div>
+
       <div class="text-center space-x-2">
         <h3 class="text-xl text-primary-700 text-center uppercase inline-block">
           {{

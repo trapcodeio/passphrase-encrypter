@@ -1,12 +1,16 @@
 <script setup lang="ts">
 import type { ILoadingButton } from "revue-components/vues/component-types";
 import { computed, ref } from "vue";
+import { useRouter } from "vue-router";
 import Settings from "../components/Settings.vue";
-import { decrypt } from "../functions/crypto";
+import { decrypt, isLegacyBlob } from "../functions/crypto";
 import { ifDev } from "../functions/env";
 import { ordinalSuffixOf } from "../functions/string";
 import { settings } from "../stores/settings.store";
+import { migrationData } from "../stores/migration.store";
 import { EncryptedData, EncryptedJson } from "../types";
+
+const router = useRouter();
 
 /**
  * Encrypt Data String
@@ -17,6 +21,11 @@ const encryptedValue = ref<string>();
  * Decrypted Data
  */
 const decryptedData = ref<EncryptedData>();
+
+/**
+ * Whether the decrypted data came from a v1 (legacy) blob
+ */
+const wasV1Blob = ref(false);
 
 /**
  * The password
@@ -55,6 +64,9 @@ async function decryptWords(btn: ILoadingButton) {
   const context = encryptedValueJson.value.value;
 
   try {
+    // Detect if this is a v1 blob before decrypting
+    wasV1Blob.value = isLegacyBlob(context);
+
     const result = await decrypt(context, password);
     let data = JSON.parse(result) as EncryptedData;
     if (data.date) data.date = new Date(data.date);
@@ -71,6 +83,17 @@ function done() {
   decryptedData.value = undefined;
   passPhrase.value = "";
   encryptedValue.value = "";
+  wasV1Blob.value = false;
+}
+
+/**
+ * Migrate v1 data to v2 by passing decrypted data to the encrypt page.
+ */
+function migrateToV2() {
+  if (!decryptedData.value) return;
+  migrationData.value = decryptedData.value;
+  done();
+  router.push({ name: "encrypt" });
 }
 </script>
 
@@ -96,6 +119,24 @@ function done() {
             :placeholder="`${ordinalSuffixOf(i + 1)} Word`"
           />
         </div>
+      </div>
+
+      <!-- V1 Migration Banner -->
+      <div
+        v-if="wasV1Blob"
+        class="bg-yellow-900/50 border border-yellow-600 rounded-md p-4 mb-6 mx-auto max-w-lg text-center"
+      >
+        <p class="text-yellow-200 text-sm mb-3">
+          This file uses the old encryption format (v1) which is less secure.
+          <br />
+          Upgrade to v2 for stronger encryption (Argon2id + AES-256-GCM).
+        </p>
+        <button
+          @click.prevent="migrateToV2"
+          class="bg-yellow-600 hover:bg-yellow-700 text-white px-5 py-1.5 text-sm font-medium tracking-wide rounded-sm shadow-sm"
+        >
+          Migrate to v2
+        </button>
       </div>
 
       <div class="text-center">
