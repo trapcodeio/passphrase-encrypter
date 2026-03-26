@@ -347,7 +347,7 @@ function downloadNodeJsScript(btn: ILoadingButton) {
           <div>
             <label class="block text-sm text-gray-500 px-1">{{ i + 1 }}.</label>
             <input
-              @keyup="(e) => onInputValuesChange(e, i)"
+              @keyup="(e: any) => onInputValuesChange(e, i)"
               :value="isVerifyingWords ? retypeValues[i] : inputValues[i]"
               type="text"
               class="w-36 md:w-auto"
@@ -377,7 +377,7 @@ function downloadNodeJsScript(btn: ILoadingButton) {
           </div>
           <button
             v-else
-            @click.fa-prevent="toggleVerifyingWords"
+            @click.prevent="toggleVerifyingWords"
             :class="[isVerifyingWords ? 'bg-gray-700' : 'bg-primary-700']"
             class="mt-0.5 text-white px-5 py-1.5 text-xl tracking-wide rounded-sm shadow-sm"
             message="Encrypting"
